@@ -1,0 +1,137 @@
+{
+  "bogie_bearing": {
+    "asset_type": "bogie_bearing",
+    "feature_columns": [
+      "vibration_rms",
+      "vibration_kurtosis",
+      "temperature_c",
+      "axle_load_kn",
+      "vibration_rms_roll_mean",
+      "vibration_rms_roll_std",
+      "vibration_rms_roll_slope",
+      "vibration_rms_delta",
+      "vibration_kurtosis_roll_mean",
+      "vibration_kurtosis_roll_std",
+      "vibration_kurtosis_roll_slope",
+      "vibration_kurtosis_delta",
+      "temperature_c_roll_mean",
+      "temperature_c_roll_std",
+      "temperature_c_roll_slope",
+      "temperature_c_delta",
+      "axle_load_kn_roll_mean",
+      "axle_load_kn_roll_std",
+      "axle_load_kn_roll_slope",
+      "axle_load_kn_delta"
+    ],
+    "threshold": -0.5234754656125051,
+    "baseline": {
+      "vibration_rms": {
+        "mean": 0.37066786113688205,
+        "std": 0.03258189358292307
+      },
+      "vibration_kurtosis": {
+        "mean": 3.029351572828403,
+        "std": 0.106667612882203
+      },
+      "temperature_c": {
+        "mean": 45.186905459306416,
+        "std": 1.028172573310949
+      },
+      "axle_load_kn": {
+        "mean": 119.98796295260519,
+        "std": 4.006743002597907
+      }
+    },
+    "fast_zscore_threshold": 3.538490148471141,
+    "train_seconds": 20.3,
+    "healthy_rows": 100499,
+    "flagged_rate_full_life": 0.3776
+  },
+  "brake_unit": {
+    "asset_type": "brake_unit",
+    "feature_columns": [
+      "pad_wear_mm",
+      "disc_temperature_c",
+      "brake_pressure_bar",
+      "pad_wear_mm_roll_mean",
+      "pad_wear_mm_roll_std",
+      "pad_wear_mm_roll_slope",
+      "pad_wear_mm_delta",
+      "disc_temperature_c_roll_mean",
+      "disc_temperature_c_roll_std",
+      "disc_temperature_c_roll_slope",
+      "disc_temperature_c_delta",
+      "brake_pressure_bar_roll_mean",
+      "brake_pressure_bar_roll_std",
+      "brake_pressure_bar_roll_slope",
+      "brake_pressure_bar_delta"
+    ],
+    "threshold": -0.5329299010532698,
+    "baseline": {
+      "pad_wear_mm": {
+        "mean": 18.08839361168619,
+        "std": 0.18627163434127325
+      },
+      "disc_temperature_c": {
+        "mean": 180.69037145963208,
+        "std": 5.081813668426762
+      },
+      "brake_pressure_bar": {
+        "mean": 6.009266176523078,
+        "std": 0.0811531080279492
+      }
+    },
+    "fast_zscore_threshold": 3.834549644854324,
+    "train_seconds": 4.56,
+    "healthy_rows": 55338,
+    "flagged_rate_full_life": 0.3453
+  },
+  "traction_motor": {
+    "asset_type": "traction_motor",
+    "feature_columns": [
+      "winding_temperature_c",
+      "vibration_rms",
+      "current_draw_a",
+      "rpm",
+      "winding_temperature_c_roll_mean",
+      "winding_temperature_c_roll_std",
+      "winding_temperature_c_roll_slope",
+      "winding_temperature_c_delta",
+      "vibration_rms_roll_mean",
+      "vibration_rms_roll_std",
+      "vibration_rms_roll_slope",
+      "vibration_rms_delta",
+      "current_draw_a_roll_mean",
+      "current_draw_a_roll_std",
+      "current_draw_a_roll_slope",
+      "current_draw_a_delta",
+      "rpm_roll_mean",
+      "rpm_roll_std",
+      "rpm_roll_slope",
+      "rpm_delta"
+    ],
+    "threshold": -0.524327777310455,
+    "baseline": {
+      "winding_temperature_c": {
+        "mean": 70.26569489075236,
+        "std": 1.5347420666040428
+      },
+      "vibration_rms": {
+        "mean": 0.3163913532952501,
+        "std": 0.02837972646151612
+      },
+      "current_draw_a": {
+        "mean": 180.29357121903698,
+        "std": 3.0119619193137304
+      },
+      "rpm": {
+        "mean": 1480.452312862348,
+        "std": 8.01895486036113
+      }
+    },
+    "fast_zscore_threshold": 3.4068646648630154,
+    "train_seconds": 12.01,
+    "healthy_rows": 117242,
+    "flagged_rate_full_life": 0.3498
+  }
+}

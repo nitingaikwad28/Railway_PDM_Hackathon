@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+serving/model_store/*.onnx
+serving/model_store/*.txt
+serving/model_store/*.joblib
+data/training_dataset.parquet

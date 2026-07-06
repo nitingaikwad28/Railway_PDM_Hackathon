@@ -1,0 +1,15 @@
+1.
+Develop an AI-powered predictive maintenance system that continuously monitors sensor and telemetry data from rail assets to detect early indicators of component degradation and predict impending failures before they result in unplanned downtime or safety incidents. 
+
+2.
+Build an anomaly detection module that ingests multi-channel sensor streams — such as vibration, temperature, pressure, and operational cycle data — and identifies deviations from established healthy baselines for critical components including engines, landing gear, brakes, or bogies. 
+
+3.
+Develop a remaining useful life (RUL) estimation model that predicts how much operational life a component has before it requires maintenance or replacement, enabling planners to schedule interventions at the optimal time — after sufficient useful life has been extracted but before failure risk becomes unacceptable. 
+
+4.
+Create a maintenance action dashboard that presents asset health status, anomaly alerts, and RUL predictions in a prioritized, fleet-level view, enabling maintenance planners and operations teams to make proactive, data-driven scheduling decisions. 
+
+5.
+The solution should be designed to integrate with existing MRO and asset management workflows.
+
