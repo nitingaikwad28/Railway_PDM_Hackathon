@@ -9,6 +9,8 @@ GET  /fleet/status            latest health/RUL/anomaly snapshot, fleet-wide,
                                sorted by maintenance priority (for the dashboard)
 GET  /assets/{asset_id}       latest snapshot for one asset
 GET  /metrics/latency         rolling inference-latency percentiles (p50/p95/p99)
+GET  /metrics/model           offline benchmark report (RUL accuracy, lead time,
+                               false-alarm rate) from src/evaluate.py
 POST /workorders              MRO/EAM integration stub: raise a work order
 GET  /workorders              list work orders raised so far
 WS   /ws/stream               push live predictions to connected dashboards
@@ -23,7 +25,8 @@ from __future__ import annotations
 
 import asyncio
 import dataclasses
-import itertools
+import json
+import os
 import time
 import uuid
 from collections import deque
@@ -178,6 +181,18 @@ def latency_metrics() -> dict:
         "p99_ms": pct(0.99),
         "max_ms": round(samples[-1], 3),
     }
+
+
+@app.get("/metrics/model")
+def model_metrics() -> dict:
+    """Serve the offline benchmark report produced by `python -m src.evaluate`
+    (RUL accuracy, detection lead time, false-alarm rate). Returns a hint if
+    the report hasn't been generated yet."""
+    report_path = os.path.join(os.path.dirname(__file__), "model_store", "evaluation_report.json")
+    if not os.path.exists(report_path):
+        return {"available": False, "hint": "Run `python -m src.evaluate` to generate benchmarks."}
+    with open(report_path) as f:
+        return {"available": True, **json.load(f)}
 
 
 @app.post("/workorders")

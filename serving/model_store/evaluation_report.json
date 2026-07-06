@@ -1,0 +1,135 @@
+{
+  "config": {
+    "test_seed": 2024,
+    "n_test_assets_per_type": 12,
+    "imminent_fraction": 0.1,
+    "debounce": 3
+  },
+  "rul_benchmarks": {
+    "bogie_bearing": {
+      "mae_cycles": 1.26,
+      "rmse_cycles": 6.55,
+      "r2": 0.9783,
+      "n": 52031,
+      "by_rul_band": {
+        "0-50": {
+          "mae_cycles": 4.56,
+          "n": 600
+        },
+        "50-150": {
+          "mae_cycles": 11.69,
+          "n": 1200
+        },
+        "150-300": {
+          "mae_cycles": 24.06,
+          "n": 1800
+        },
+        "300-cap": {
+          "mae_cycles": 0.12,
+          "n": 48431
+        }
+      }
+    },
+    "brake_unit": {
+      "mae_cycles": 3.45,
+      "rmse_cycles": 13.37,
+      "r2": 0.9497,
+      "n": 27514,
+      "by_rul_band": {
+        "0-50": {
+          "mae_cycles": 4.17,
+          "n": 600
+        },
+        "50-150": {
+          "mae_cycles": 17.4,
+          "n": 1200
+        },
+        "150-300": {
+          "mae_cycles": 34.8,
+          "n": 1800
+        },
+        "300-cap": {
+          "mae_cycles": 0.37,
+          "n": 23914
+        }
+      }
+    },
+    "traction_motor": {
+      "mae_cycles": 1.34,
+      "rmse_cycles": 7.12,
+      "r2": 0.9697,
+      "n": 62055,
+      "by_rul_band": {
+        "0-50": {
+          "mae_cycles": 6.86,
+          "n": 600
+        },
+        "50-150": {
+          "mae_cycles": 13.67,
+          "n": 1200
+        },
+        "150-300": {
+          "mae_cycles": 28.33,
+          "n": 1800
+        },
+        "300-cap": {
+          "mae_cycles": 0.2,
+          "n": 58455
+        }
+      }
+    },
+    "overall": {
+      "mae_cycles": 1.72,
+      "rmse_cycles": 8.53,
+      "r2": 0.9665,
+      "n": 141600
+    }
+  },
+  "anomaly_metrics": {
+    "bogie_bearing": {
+      "n_assets": 12,
+      "detection_rate": 1.0,
+      "proactive_rate": 1.0,
+      "mean_lead_time_cycles": 1686.7,
+      "median_lead_time_cycles": 1707.5,
+      "false_alarm_rate": 0.0103,
+      "precision": 0.9836,
+      "recall": 0.931,
+      "f1": 0.9566
+    },
+    "brake_unit": {
+      "n_assets": 12,
+      "detection_rate": 1.0,
+      "proactive_rate": 1.0,
+      "mean_lead_time_cycles": 862.6,
+      "median_lead_time_cycles": 818.5,
+      "false_alarm_rate": 0.009,
+      "precision": 0.9847,
+      "recall": 0.8682,
+      "f1": 0.9228
+    },
+    "traction_motor": {
+      "n_assets": 12,
+      "detection_rate": 1.0,
+      "proactive_rate": 1.0,
+      "mean_lead_time_cycles": 1971.8,
+      "median_lead_time_cycles": 1977.0,
+      "false_alarm_rate": 0.0114,
+      "precision": 0.9814,
+      "recall": 0.8976,
+      "f1": 0.9376
+    },
+    "overall": {
+      "n_assets": 36,
+      "detection_rate": 1.0,
+      "proactive_rate": 1.0,
+      "mean_lead_time_cycles": 1507.0,
+      "median_lead_time_cycles": 1390.5,
+      "false_alarm_rate": 0.0105,
+      "precision": 0.9828,
+      "recall": 0.9042,
+      "f1": 0.9419
+    }
+  },
+  "eval_seconds": 22.3
+}

@@ -116,4 +116,39 @@ def live_view() -> None:
                 st.error(str(e))
 
 
+def model_quality_view() -> None:
+    """Static panel showing offline benchmark results (does not need refresh)."""
+    report = fetch_json("/metrics/model")
+    st.header("Model quality benchmarks")
+    if not isinstance(report, dict) or not report.get("available"):
+        st.caption("No benchmark report yet. Run `python -m src.evaluate` to generate one.")
+        return
+
+    st.caption("Measured on a held-out fleet of unseen run-to-failure assets "
+               "(different random seed from training).")
+
+    rul = report["rul_benchmarks"]["overall"]
+    anom = report["anomaly_metrics"]["overall"]
+    c = st.columns(6)
+    c[0].metric("RUL MAE (cycles)", rul["mae_cycles"])
+    c[1].metric("RUL R²", rul["r2"])
+    c[2].metric("Detection rate", f"{anom['detection_rate']*100:.0f}%")
+    c[3].metric("Median lead time", f"{anom['median_lead_time_cycles']:.0f} cyc")
+    c[4].metric("False-alarm rate", f"{anom['false_alarm_rate']*100:.2f}%")
+    c[5].metric("Precision / Recall", f"{anom['precision']:.2f} / {anom['recall']:.2f}")
+
+    left, right = st.columns(2)
+    with left:
+        st.subheader("RUL accuracy by asset type")
+        rul_rows = [{"asset_type": k, **{kk: vv for kk, vv in v.items() if kk != "by_rul_band"}}
+                    for k, v in report["rul_benchmarks"].items()]
+        st.dataframe(pd.DataFrame(rul_rows), width='stretch', hide_index=True)
+    with right:
+        st.subheader("Anomaly detection by asset type")
+        anom_rows = [{"asset_type": k, **v} for k, v in report["anomaly_metrics"].items()]
+        st.dataframe(pd.DataFrame(anom_rows), width='stretch', hide_index=True)
+
+
 live_view()
+st.divider()
+model_quality_view()

@@ -2,9 +2,22 @@
 
 AI-powered predictive maintenance for rail assets: multi-channel anomaly
 detection + Remaining-Useful-Life (RUL) estimation, served behind a
-low-latency real-time API, with a fleet-level maintenance dashboard and an
-MRO/EAM integration stub. Built against the brief in
+low-latency real-time API, with a fleet-level maintenance dashboard, model
+benchmarks, and an MRO/EAM integration roadmap. Built against the brief in
 [`Railway Hackathon Idea.txt`](Railway%20Hackathon%20Idea.txt).
+
+**New here?** Start with the [Beginner's Guide](docs/BEGINNERS_GUIDE.md) — it
+assumes no background in ML, rail/aerospace, Python, or servers.
+
+## Deliverables — where each is implemented
+
+| # | Required deliverable | Where | Evidence |
+|---|---|---|---|
+| 1 | Working **anomaly detection** prototype on a representative sensor dataset | `src/train_anomaly.py`, `serving/inference.py`; data from `data/simulate_telemetry.py` | Live on dashboard + `POST /ingest`; two-tier z-score + Isolation Forest |
+| 2 | **RUL estimation** model with **accuracy benchmarks** | `src/train_rul.py`; benchmarks in `src/evaluate.py` | **MAE 1.72 cycles, R² 0.97** — [EVALUATION.md](docs/EVALUATION.md) |
+| 3 | **Maintenance action dashboard** — fleet health + prioritized alerts | `dashboard/app.py` | Prioritized queue, RUL/health charts, work orders, benchmark panel |
+| 4 | Model eval metrics incl. **detection lead time** & **false-alarm rate** | `src/evaluate.py`, `GET /metrics/model` | **Lead time median 1,390 cyc, false-alarm 1.05%, detection 100%** — [EVALUATION.md](docs/EVALUATION.md) |
+| 5 | **Integration roadmap** for MRO / asset-management connectivity | `docs/INTEGRATION_ROADMAP.md` + `POST/GET /workorders` stub | Phased SAP PM / IBM Maximo plan; working work-order workflow |
 
 ## Architecture
 
@@ -13,27 +26,13 @@ data/simulate_telemetry.py   synthetic multi-channel telemetry (train + live str
 src/features.py              feature engineering shared by training & serving
 src/train_rul.py             LightGBM RUL regressor per asset type -> ONNX export
 src/train_anomaly.py         IsolationForest + fast z-score baseline per asset type
+src/evaluate.py              held-out benchmarks: RUL accuracy, lead time, false-alarm rate
 serving/inference.py         in-memory inference engine (ONNX Runtime + LightGBM)
-serving/app.py                FastAPI: REST + WebSocket, live simulator, work orders
-dashboard/app.py              Streamlit fleet dashboard (polls the API)
-serving/model_store/          trained model artifacts (generated, gitignored-worthy)
+serving/app.py                FastAPI: REST + WebSocket, live simulator, work orders, metrics
+dashboard/app.py              Streamlit fleet dashboard + model-quality panel (polls the API)
+serving/model_store/          trained model artifacts + evaluation_report.json (generated)
+docs/                         BEGINNERS_GUIDE, EVALUATION, INTEGRATION_ROADMAP
 ```
-
-### Why this covers the 5 requirements
-
-1. **Continuous monitoring / early failure detection** -- `LiveTelemetrySimulator`
-   emulates an onboard sensor gateway streaming vibration/temperature/pressure/
-   cycle data; `InferenceEngine` scores every event in real time.
-2. **Anomaly detection module** -- two-tier design (see below), covering
-   engines (traction motors), brakes and bogies with distinct sensor profiles.
-3. **RUL estimation** -- per-asset-type LightGBM regressor trained on
-   run-to-failure trajectories, RUL capped at 300 cycles (matches how far out
-   a maintenance plan actually needs to look).
-4. **Maintenance action dashboard** -- Streamlit fleet view: prioritized
-   queue, RUL distributions, health mix, live latency SLA panel.
-5. **MRO/EAM integration** -- `POST/GET /workorders` stub + auto work-order
-   creation when priority crosses a threshold, shaped to be swapped for a
-   real SAP PM / IBM Maximo adapter without changing the scoring path.
 
 ## Real-time data
 
@@ -92,10 +91,13 @@ python -m venv .venv
 # Train both models (regenerates the synthetic dataset each run)
 ./.venv/Scripts/python -m src.train_rul
 ./.venv/Scripts/python -m src.train_anomaly
+
+# (optional) reproduce the accuracy / lead-time / false-alarm benchmarks
+./.venv/Scripts/python -m src.evaluate
 ```
 
-This writes `serving/model_store/{rul,anomaly}_<asset_type>.{txt,onnx,joblib}`
-plus `rul_metadata.json` / `anomaly_metadata.json`.
+This writes `serving/model_store/{rul,anomaly}_<asset_type>.{txt,onnx,joblib}`,
+the `*_metadata.json` files, and `evaluation_report.json`.
 
 ## Run
 
@@ -117,13 +119,28 @@ by default (editable in the sidebar).
 | `POST /ingest` | push one real telemetry reading, get a prediction back |
 | `GET /fleet/status` | latest snapshot for every asset, priority-sorted |
 | `GET /metrics/latency` | rolling p50/p95/p99 inference latency |
+| `GET /metrics/model` | offline benchmark report (RUL accuracy, lead time, false-alarm rate) |
 | `POST /workorders`, `GET /workorders` | MRO/EAM integration stub |
 | `WS /ws/stream` | live prediction feed for custom front ends |
 
-## Notes / next steps for a full product
+Interactive API docs are auto-generated at `http://127.0.0.1:8000/docs`.
 
-- Swap `LiveTelemetrySimulator` for a real Kafka/MQTT consumer calling the
-  same `InferenceEngine.process_event` -- the scoring code doesn't change.
-- Swap the `/workorders` stub for a real SAP PM / Maximo adapter.
-- Add periodic retraining as real run-to-failure and maintenance-log data
-  accumulates, replacing the synthetic dataset.
+## Headline results
+
+| Metric | Value | Details |
+|---|---|---|
+| RUL MAE (overall) | **1.72 cycles** | R² 0.97; ~4–7 cyc in the final 50 cycles |
+| Anomaly detection rate | **100%** | of failing assets caught before end-of-life |
+| Median detection lead time | **1,390 cycles** | early warning before failure |
+| False-alarm rate | **1.05%** | of healthy readings wrongly flagged |
+| Inference latency | **p50 ~0.6ms / p99 ~3ms** | per event, RUL + anomaly combined |
+
+Full methodology and per-asset-type breakdown: [docs/EVALUATION.md](docs/EVALUATION.md).
+
+## Documentation
+
+- [docs/BEGINNERS_GUIDE.md](docs/BEGINNERS_GUIDE.md) — concepts + how to run, for
+  newcomers to ML / rail / Python / servers.
+- [docs/EVALUATION.md](docs/EVALUATION.md) — benchmark methodology & full results.
+- [docs/INTEGRATION_ROADMAP.md](docs/INTEGRATION_ROADMAP.md) — phased plan to
+  connect to SAP PM / IBM Maximo and real telemetry.
