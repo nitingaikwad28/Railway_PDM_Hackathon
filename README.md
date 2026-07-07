@@ -88,7 +88,12 @@ python -m venv .venv
 ./.venv/Scripts/pip install -r requirements.txt     # Windows
 # source .venv/bin/activate && pip install -r requirements.txt   # macOS/Linux
 
-# Train both models (regenerates the synthetic dataset each run)
+# Materialize the telemetry dataset to data/ (parquet + readable CSV samples).
+# Optional -- training auto-generates it on first run -- but this is the
+# explicit way to produce the representative sensor dataset on disk.
+./.venv/Scripts/python -m data.generate_dataset
+
+# Train both models (loads data/training_dataset.parquet, or generates it)
 ./.venv/Scripts/python -m src.train_rul
 ./.venv/Scripts/python -m src.train_anomaly
 
@@ -98,6 +103,17 @@ python -m venv .venv
 
 This writes `serving/model_store/{rul,anomaly}_<asset_type>.{txt,onnx,joblib}`,
 the `*_metadata.json` files, and `evaluation_report.json`.
+
+### Where the data lives
+
+| File | What it is |
+|---|---|
+| `data/training_dataset.parquet` | Full run-to-failure training set (120 assets, ~455k rows) — what the models train on |
+| `data/training_dataset_sample.csv` | Readable sample: one full asset life per type (open in Excel to watch sensors drift as RUL → 0) |
+| `data/live_telemetry_sample.csv` | A captured window of the live streaming feed (what `/ingest` receives per event) |
+
+Training loads the parquet if present (fast, <1s) and only regenerates it when
+missing, so the saved dataset is exactly what the models are trained on.
 
 ## Run
 

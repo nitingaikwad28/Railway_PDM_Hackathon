@@ -43,7 +43,7 @@
       }
     },
     "fast_zscore_threshold": 3.538490148471141,
-    "train_seconds": 20.3,
+    "train_seconds": 40.24,
     "healthy_rows": 100499,
     "flagged_rate_full_life": 0.3776
   },
@@ -82,7 +82,7 @@
       }
     },
     "fast_zscore_threshold": 3.834549644854324,
-    "train_seconds": 4.56,
+    "train_seconds": 18.74,
     "healthy_rows": 55338,
     "flagged_rate_full_life": 0.3453
   },
@@ -130,7 +130,7 @@
       }
     },
     "fast_zscore_threshold": 3.4068646648630154,
-    "train_seconds": 12.01,
+    "train_seconds": 49.06,
     "healthy_rows": 117242,
     "flagged_rate_full_life": 0.3498
   }

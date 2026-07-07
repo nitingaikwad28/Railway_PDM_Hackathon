@@ -22,6 +22,7 @@ from rolling trend/variance features.
 from __future__ import annotations
 
 import dataclasses
+import os
 import time
 import uuid
 from typing import Iterator, Optional
@@ -120,6 +121,29 @@ def generate_training_dataset(
     if output_path:
         full.to_parquet(output_path, index=False)
     return full
+
+
+# Canonical training-dataset location + parameters. The training and anomaly
+# scripts share this single materialized file so the saved data on disk is the
+# exact data the models are trained on (no silent regeneration divergence).
+_DATA_DIR = os.path.join(os.path.dirname(__file__))
+DEFAULT_TRAINING_PARQUET = os.path.join(_DATA_DIR, "training_dataset.parquet")
+DEFAULT_TRAIN_ASSETS_PER_TYPE = 40
+
+
+def load_or_generate_training_dataset(
+    n_assets_per_type: int = DEFAULT_TRAIN_ASSETS_PER_TYPE,
+    seed: int = RNG_SEED,
+    parquet_path: str = DEFAULT_TRAINING_PARQUET,
+) -> pd.DataFrame:
+    """Return the canonical training dataset, reading the saved parquet if it
+    exists and generating + saving it otherwise. Guarantees the dataset is
+    present on disk under data/ and that every consumer uses the same rows."""
+    if os.path.exists(parquet_path):
+        return pd.read_parquet(parquet_path)
+    return generate_training_dataset(
+        n_assets_per_type=n_assets_per_type, seed=seed, output_path=parquet_path
+    )
 
 
 @dataclasses.dataclass

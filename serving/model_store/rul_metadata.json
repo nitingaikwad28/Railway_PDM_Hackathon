@@ -26,7 +26,7 @@
     "rul_cap": 300,
     "val_mae_cycles": 1.757360756678332,
     "best_iteration": 142,
-    "train_seconds": 28.71,
+    "train_seconds": 33.49,
     "n_train_rows": 136669,
     "onnx_exported": true
   },
@@ -52,7 +52,7 @@
     "rul_cap": 300,
     "val_mae_cycles": 3.183407849606393,
     "best_iteration": 165,
-    "train_seconds": 13.21,
+    "train_seconds": 13.18,
     "n_train_rows": 74674,
     "onnx_exported": true
   },
@@ -83,7 +83,7 @@
     "rul_cap": 300,
     "val_mae_cycles": 1.4122122002285211,
     "best_iteration": 57,
-    "train_seconds": 31.78,
+    "train_seconds": 28.13,
     "n_train_rows": 150175,
     "onnx_exported": true
   }

@@ -4,4 +4,9 @@ __pycache__/
 serving/model_store/*.onnx
 serving/model_store/*.txt
 serving/model_store/*.joblib
+
+# Large generated full dataset (regenerate with: python -m data.generate_dataset).
+# The small CSV samples below are kept so the data is inspectable in the repo.
 data/training_dataset.parquet
+!data/training_dataset_sample.csv
+!data/live_telemetry_sample.csv

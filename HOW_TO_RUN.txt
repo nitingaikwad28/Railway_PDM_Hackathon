@@ -1,0 +1,173 @@
+================================================================================
+ RAILWAY PREDICTIVE MAINTENANCE - HOW TO RUN LOCALLY
+================================================================================
+
+This file lists the exact steps to run the whole system on your own machine.
+Commands are shown for Windows PowerShell (this project's default shell).
+For macOS/Linux notes, see the bottom of this file.
+
+Prerequisite: Python 3.10 or newer installed and on your PATH.
+Check with:   python --version
+
+
+--------------------------------------------------------------------------------
+ STEP 1 - Open a terminal in the project folder
+--------------------------------------------------------------------------------
+
+Open PowerShell and go to the project root:
+
+    cd "D:\HACKATHON\Hackathon_Railway_PDM"
+
+
+--------------------------------------------------------------------------------
+ STEP 2 - Create an isolated Python environment (one time)
+--------------------------------------------------------------------------------
+
+    python -m venv .venv
+
+This makes a ".venv" folder that keeps this project's libraries separate from
+the rest of your computer. You only do this once.
+
+
+--------------------------------------------------------------------------------
+ STEP 3 - Install the required libraries (one time)
+--------------------------------------------------------------------------------
+
+    .\.venv\Scripts\python.exe -m pip install --upgrade pip
+    .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+
+This installs numpy, pandas, scikit-learn, lightgbm, onnxruntime, fastapi,
+uvicorn, streamlit, plotly, etc. It may take a few minutes the first time.
+
+
+--------------------------------------------------------------------------------
+ STEP 4 - Train the models (a couple of minutes)
+--------------------------------------------------------------------------------
+
+    (optional) save the telemetry dataset to disk first, so you can inspect it:
+    .\.venv\Scripts\python.exe -m data.generate_dataset
+
+    then train:
+    .\.venv\Scripts\python.exe -m src.train_rul
+    .\.venv\Scripts\python.exe -m src.train_anomaly
+
+What this does:
+  - data.generate_dataset writes the telemetry data into the data\ folder:
+        data\training_dataset.parquet        (full training set the models use)
+        data\training_dataset_sample.csv      (readable sample, opens in Excel)
+        data\live_telemetry_sample.csv        (a window of the live feed)
+  - Training loads data\training_dataset.parquet (auto-generates it if missing).
+  - Trains the Remaining-Useful-Life (RUL) predictor (LightGBM + ONNX export).
+  - Trains the anomaly detector (Isolation Forest + z-score baseline).
+  - Saves the models into: serving\model_store\
+
+You should see lines like "trained in 20s | val MAE = 1.76 cycles | onnx=True".
+
+
+--------------------------------------------------------------------------------
+ STEP 5 - (Optional) Reproduce the accuracy benchmarks
+--------------------------------------------------------------------------------
+
+    .\.venv\Scripts\python.exe -m src.evaluate
+
+This measures the models on a fresh held-out fleet and prints:
+  - RUL accuracy (MAE / RMSE / R2)
+  - Anomaly detection lead time, false-alarm rate, precision/recall
+It also saves serving\model_store\evaluation_report.json (used by the dashboard).
+
+
+--------------------------------------------------------------------------------
+ STEP 6 - Start the serving API (leave this terminal running)
+--------------------------------------------------------------------------------
+
+    .\.venv\Scripts\python.exe -m uvicorn serving.app:app --host 127.0.0.1 --port 8000
+
+This starts the backend server. It also runs a background simulator that streams
+a live fleet of telemetry through the models, so there is always data to see.
+
+Verify it works - open these in a browser:
+  - http://127.0.0.1:8000/health          (should say {"status":"ok",...})
+  - http://127.0.0.1:8000/docs            (interactive API documentation)
+  - http://127.0.0.1:8000/fleet/status    (live fleet health JSON)
+
+Leave this terminal open. To stop the server later, press Ctrl+C in it.
+
+
+--------------------------------------------------------------------------------
+ STEP 7 - Start the dashboard (open a SECOND terminal)
+--------------------------------------------------------------------------------
+
+Open a new PowerShell window, go to the project folder again:
+
+    cd "D:\HACKATHON\Hackathon_Railway_PDM"
+
+Then run:
+
+    .\.venv\Scripts\python.exe -m streamlit run dashboard/app.py
+
+Streamlit will print a local URL (usually http://localhost:8501) and open it
+in your browser. You will see:
+  - Fleet KPIs (assets tracked, critical/warning counts, live latency)
+  - Prioritized maintenance queue
+  - RUL and fleet-health charts
+  - Work orders (MRO/EAM integration stub)
+  - Model quality benchmarks panel
+
+The dashboard talks to the API at http://127.0.0.1:8000 (editable in the
+sidebar "API base URL" box). The serving API from STEP 6 must be running.
+
+
+--------------------------------------------------------------------------------
+ QUICK RECAP (after first-time setup is done)
+--------------------------------------------------------------------------------
+
+Terminal 1:
+    cd "D:\HACKATHON\Hackathon_Railway_PDM"
+    .\.venv\Scripts\python.exe -m uvicorn serving.app:app --host 127.0.0.1 --port 8000
+
+Terminal 2:
+    cd "D:\HACKATHON\Hackathon_Railway_PDM"
+    .\.venv\Scripts\python.exe -m streamlit run dashboard/app.py
+
+Then open the dashboard URL that Streamlit prints.
+
+
+--------------------------------------------------------------------------------
+ TROUBLESHOOTING
+--------------------------------------------------------------------------------
+
+* "ModuleNotFoundError" -> you skipped STEP 3, or you are not using the venv
+  Python. Always call .\.venv\Scripts\python.exe (not a bare "python").
+
+* Dashboard shows "Cannot reach API ..." -> the serving API (STEP 6) is not
+  running, or it is on a different port. Start it, or fix the sidebar URL.
+
+* Models fail to load in STEP 6 -> you skipped STEP 4. Train the models first.
+
+* Port already in use -> change the port, e.g. use --port 8001 for the API
+  (and update the dashboard sidebar URL to match), or --server.port 8502 for
+  Streamlit.
+
+* Running the training scripts must be done from the project ROOT folder, using
+  the "-m" form (python -m src.train_rul), so imports like "data" and "src"
+  resolve correctly.
+
+
+--------------------------------------------------------------------------------
+ macOS / LINUX NOTES
+--------------------------------------------------------------------------------
+
+Replace ".\.venv\Scripts\python.exe" with ".venv/bin/python", and use forward
+slashes in paths. Example:
+
+    python3 -m venv .venv
+    .venv/bin/python -m pip install -r requirements.txt
+    .venv/bin/python -m src.train_rul
+    .venv/bin/python -m src.train_anomaly
+    .venv/bin/python -m uvicorn serving.app:app --host 127.0.0.1 --port 8000
+    .venv/bin/python -m streamlit run dashboard/app.py
+
+
+For a full explanation of what each part does (written for beginners), see:
+    docs\BEGINNERS_GUIDE.md
+================================================================================

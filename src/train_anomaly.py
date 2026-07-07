@@ -27,7 +27,7 @@ import numpy as np
 import pandas as pd
 from sklearn.ensemble import IsolationForest
 
-from data.simulate_telemetry import ASSET_TYPES, generate_training_dataset
+from data.simulate_telemetry import ASSET_TYPES, load_or_generate_training_dataset
 from src.features import compute_rolling_features, feature_columns, sensor_cols_for
 
 MODEL_DIR = os.path.join(os.path.dirname(__file__), "..", "serving", "model_store")
@@ -104,8 +104,8 @@ def train_one_asset_type(df: pd.DataFrame, asset_type: str) -> dict:
 
 
 def main() -> None:
-    print("Generating synthetic run-to-failure training dataset...")
-    df = generate_training_dataset(n_assets_per_type=40)
+    print("Loading run-to-failure training dataset (data/training_dataset.parquet)...")
+    df = load_or_generate_training_dataset()
     all_meta = {}
     for asset_type in ASSET_TYPES:
         all_meta[asset_type] = train_one_asset_type(df, asset_type)
